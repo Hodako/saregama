@@ -6,21 +6,31 @@ import TableOfContents from '../components/TableOfContents';
 const Article: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [article, setArticle] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadArticle = async () => {
-      const data = await fetchArticleById(Number(id));
-      setArticle(data);
+      try {
+        const data = await fetchArticleById(Number(id));
+        setArticle(data);
+      } catch (err) {
+        setError('Failed to fetch article');
+      } finally {
+        setLoading(false);
+      }
     };
     loadArticle();
   }, [id]);
 
-  if (!article) return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+  if (!article) return <div>Article not found</div>;
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto p-4 flex">
-        <TableOfContents />
+        <TableOfContents sections={['Introduction', 'Historical Context', 'Conclusion']} />
         <div className="flex-1 p-4">
           <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
           <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: article.content }} />
