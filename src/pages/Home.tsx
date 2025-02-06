@@ -1,23 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { fetchArticles } from '../services/api';
+import React, { useState } from 'react';
 import ArticleCard from '../components/ArticleCard';
 import SearchBar from '../components/SearchBar';
+import useArticles from '../hooks/useArticles';
 
 const Home: React.FC = () => {
-  const [articles, setArticles] = useState<any[]>([]);
+  const { articles, loading, error } = useArticles();
   const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    const loadArticles = async () => {
-      const data = await fetchArticles();
-      setArticles(data);
-    };
-    loadArticles();
-  }, []);
 
   const filteredArticles = articles.filter((article) =>
     article.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="min-h-screen bg-gray-50">
